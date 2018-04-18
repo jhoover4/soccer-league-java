@@ -41,8 +41,10 @@ public class Main {
         catch(IOException ex) {
             ex.printStackTrace();
         }
+
         soccerPlayers.remove(0);
         CreateTeams teamList = new CreateTeams(soccerPlayers);
+        teamList.createLeague();
         teamList.createLetters();
     }
 }
