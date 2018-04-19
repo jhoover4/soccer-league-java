@@ -22,47 +22,30 @@ class CreateTeams {
 
     CreateTeams(List<Map<String, String>> players) {
         this.players = players;
-    }
+        this.sharks = new ArrayList<>();
+        this.raptors = new ArrayList<>();
+        this.dragons = new ArrayList<>();
 
-    private List<Map<String, String>> separateExp(String expAnswer){
-        expAnswer = expAnswer.toLowerCase();
-        List<Map<String, String>> returnPlayers = new ArrayList<>();
-
-        for ( Map<String, String> player : this.players ){
-            if (player.get("exp").toLowerCase().equals(expAnswer)){
-              returnPlayers.add(player);
-            }
-        }
-
-        return returnPlayers;
-    }
-
-    public void createLeague(){
         List<Map<String, String>> expPlayers = separateExp("yes");
         List<Map<String, String>> nonExpPlayers = separateExp("no");
 
-        int wxpSizeIncrement = Math.round(expPlayers.size() / 3);
-        int nonExpSizeIncrement = Math.round(nonExpPlayers.size() / 3);
-
-
-        this.sharks = new ArrayList<>(expPlayers.subList(0, wxpSizeIncrement));
-        this.raptors = new ArrayList<>(expPlayers.subList(wxpSizeIncrement, (wxpSizeIncrement + wxpSizeIncrement)));
-        wxpSizeIncrement += wxpSizeIncrement;
-        this.dragons = new ArrayList<>(expPlayers.subList(wxpSizeIncrement, (wxpSizeIncrement + (wxpSizeIncrement / 2))));
-
-        this.sharks.addAll(expPlayers.subList(0, nonExpSizeIncrement));
-        this.raptors.addAll(expPlayers.subList(nonExpSizeIncrement, (nonExpSizeIncrement + nonExpSizeIncrement)));
-        nonExpSizeIncrement += nonExpSizeIncrement;
-        this.dragons.addAll(expPlayers.subList(nonExpSizeIncrement, (nonExpSizeIncrement + (nonExpSizeIncrement / 2))));
-
-        writeTeamsTxt(this.sharks, "Sharks");
-        writeTeamsTxt(this.raptors, "Raptors");
-        writeTeamsTxt(this.dragons, "Dragons");
+        addPlayers(expPlayers);
+        addPlayers(nonExpPlayers);
     }
 
-    private void writeTeamsTxt(List<Map<String, String>> team, String teamName){
+    void createTeamsTxt(){
+        // deletes file if it already exists
+        File file = new File("teams.txt");
+        if (file.delete()){
+            System.out.println("teams.txt already exists. Rewriting...");
+        }
 
+        writeToFile(this.sharks, "Sharks");
+        writeToFile(this.raptors, "Raptors");
+        writeToFile(this.dragons, "Dragons");
+    }
 
+    private void writeToFile(List<Map<String, String>> team, String teamName){
             try(FileWriter fw = new FileWriter("teams.txt", true);
                 BufferedWriter bw = new BufferedWriter(fw);
                 PrintWriter out = new PrintWriter(bw))
@@ -72,11 +55,34 @@ class CreateTeams {
                         team) {
                     out.println(player.get("name"));
                 }
+                out.println();
             } catch (IOException ioe) {
                 System.out.println("File not written properly.");
                 ioe.printStackTrace();
                 System.exit(-1);
             }
+    }
+
+    private List<Map<String, String>> separateExp(String expAnswer){
+        expAnswer = expAnswer.toLowerCase();
+        List<Map<String, String>> returnPlayers = new ArrayList<>();
+
+        for ( Map<String, String> player : this.players ){
+            if (player.get("exp").toLowerCase().equals(expAnswer)){
+                returnPlayers.add(player);
+            }
+        }
+
+        return returnPlayers;
+    }
+
+    private void addPlayers(List<Map<String, String>> players){
+        int increment = Math.round(players.size() / 3);
+
+        this.sharks.addAll(players.subList(0, increment));
+        this.raptors.addAll(players.subList(increment, (increment + increment)));
+        increment += increment;
+        this.dragons.addAll(players.subList(increment, (increment + (increment / 2))));
     }
 
     private void createLetterDir(){
@@ -87,7 +93,7 @@ class CreateTeams {
             Files.createDirectory(newDirPath);
         }
         catch (IOException ioe){
-            System.out.println("Directory already created.");
+            System.out.println("player_letters directory already created.");
         }
 
         this.lettersDirPath = newDirStr;

@@ -44,7 +44,7 @@ public class Main {
 
         soccerPlayers.remove(0);
         CreateTeams teamList = new CreateTeams(soccerPlayers);
-        teamList.createLeague();
+        teamList.createTeamsTxt();
         teamList.createLetters();
     }
 }
